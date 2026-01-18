@@ -1,137 +1,20 @@
 import argparse
 import time
-import os
-import urllib.request
-import gzip
-import shutil
 
-from bmssp.graph_loader import load_dimacs_graph, load_snap_graph, get_file_size_mb
+from bmssp.graph_loader import load_snap_graph, get_file_size_mb
 from bmssp.bmssp_solver import BmsspSolver
 from bmssp.comparison_solvers import dijkstra, bellman_ford
+from bmssp.utils import prepare_dataset
+from bmssp.datasets import DATASETS
 
 # A dictionary to manage the configurations for different datasets.
 # Each entry specifies how to load the data, its filename, properties,
 # and sample nodes for testing the shortest path algorithms.
 # Datasets are ordered by vertex count (smallest to largest).
-DATASETS = {
-    "rome": {
-        "loader": load_dimacs_graph,
-        "filename": "Rome99.txt",
-        "is_directed": True,
-        "start_node": 6,
-        "end_node": 1778
-    },
-    "stanford": {
-        "url": "https://snap.stanford.edu/data/web-Stanford.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "web-Stanford.txt",
-        "is_directed": True,
-        "start_node": 235899,
-        "end_node": 23074,
-        "note": "Web graph - paths may not exist between arbitrary nodes due to disconnected components"
-    },
-    "google": {
-        "url": "https://snap.stanford.edu/data/web-Google.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "web-Google.txt",
-        "is_directed": True,
-        "start_node": 895428,
-        "end_node": 228498,
-        "note": "Web graph - may have disconnected components"
-    },
-    "pennsylvania": {
-        "url": "https://snap.stanford.edu/data/roadNet-PA.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "roadNet-PA.txt",
-        "is_directed": False,
-        "start_node": 853045,
-        "end_node": 992376
-    },
-    "texas": {
-        "url": "https://snap.stanford.edu/data/roadNet-TX.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "roadNet-TX.txt",
-        "is_directed": False,
-        "start_node": 558629,
-        "end_node": 613982
-    },
-    "pokec": {
-        "url": "https://snap.stanford.edu/data/soc-pokec-relationships.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "soc-pokec-relationships.txt",
-        "is_directed": True,
-        "start_node": 1452585,
-        "end_node": 1618281
-    },
-    "california": {
-        "url": "https://snap.stanford.edu/data/roadNet-CA.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "roadNet-CA.txt",
-        "is_directed": False,
-        "start_node": 807041,
-        "end_node": 1453117
-    },
-    "livejournal": {
-        "url": "https://snap.stanford.edu/data/soc-LiveJournal1.txt.gz",
-        "loader": load_snap_graph,
-        "filename": "soc-LiveJournal1.txt",
-        "is_directed": True,
-        "start_node": 1469803,
-        "end_node": 4835730
-    },
-}
+
 
 # Define the directory where all graph data files will be stored.
 DATA_DIR = "data"
-
-def prepare_dataset(dataset_name: str, dataset_info: dict):
-    """
-    Ensures the required dataset file is available in the 'data' directory.
-    If a 'url' is provided and the file is missing, it will be downloaded and extracted.
-    If no 'url' is given, it assumes the file is local and checks for its existence.
-    """
-    os.makedirs(DATA_DIR, exist_ok=True)
-    
-    final_path = os.path.join(DATA_DIR, dataset_info["filename"])
-    
-    if os.path.exists(final_path):
-        print(f"Dataset '{dataset_name}' found locally at '{final_path}'.")
-        return final_path
-
-    if "url" not in dataset_info:
-        print(f"Error: Local dataset file '{final_path}' not found.")
-        print("Please ensure the file is placed in the 'data' directory.")
-        return None
-
-    url = dataset_info["url"]
-    compressed_filename = os.path.basename(url)
-    compressed_path = os.path.join(DATA_DIR, compressed_filename)
-
-    print(f"Downloading dataset '{dataset_name}' from {url}...")
-    try:
-        with urllib.request.urlopen(url) as response, open(compressed_path, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
-        print("Download complete.")
-    except Exception as e:
-        print(f"Error downloading {url}: {e}")
-        if os.path.exists(compressed_path): os.remove(compressed_path)
-        return None
-
-    if url.endswith(".gz"):
-        print(f"Extracting {compressed_path}...")
-        try:
-            with gzip.open(compressed_path, 'rb') as f_in, open(final_path, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-            os.remove(compressed_path)
-            print("Extraction complete.")
-        except Exception as e:
-            print(f"Error extracting {compressed_path}: {e}")
-            if os.path.exists(final_path): os.remove(final_path)
-            return None
-    
-    return final_path
-
-
 
 
 def run_benchmark(dataset_name: str, use_cache: bool = True):
@@ -145,7 +28,7 @@ def run_benchmark(dataset_name: str, use_cache: bool = True):
 
     dataset_info = DATASETS[dataset_name]
     
-    filepath = prepare_dataset(dataset_name, dataset_info)
+    filepath = prepare_dataset(dataset_name, dataset_info, DATA_DIR)
     if not filepath:
         print("Failed to prepare dataset. Aborting benchmark.")
         return
