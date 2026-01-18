@@ -42,9 +42,10 @@ def run_benchmark(dataset_name: str, use_cache: bool = True):
     try:
         loader_func = dataset_info["loader"]
         if loader_func == load_snap_graph:
-            graph = loader_func(filepath, is_directed=dataset_info.get("is_directed", True), use_cache=use_cache)
+            graph, _, _ = loader_func(filepath, is_directed=dataset_info.get(
+                "is_directed", True), use_cache=use_cache)
         else:
-            graph = loader_func(filepath, use_cache=use_cache)
+            graph, _, _ = loader_func(filepath, use_cache=use_cache)
     except Exception as e:
         print(f"Error loading graph: {e}")
         return

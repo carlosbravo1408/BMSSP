@@ -172,7 +172,7 @@ def load_snap_graph(
     if use_cache:
         _cache.save_graph_to_cache(graph, file_path, is_directed=is_directed)
     
-    return graph, graph.vertices, len(edges_data)
+    return graph, graph.vertices, len(u_array) * (1 if is_directed else 2)
 
 
 def get_file_size_mb(file_path: str) -> float:
