@@ -1,10 +1,14 @@
+from typing import Tuple
+
 import pandas as pd
 import numpy as np
 from bmssp.graph import Graph
 from bmssp.graph_cache import GraphCache
 
+
 # Global cache instance
 _cache = GraphCache()
+
 
 def load_dimacs_graph(
         file_path: str,
