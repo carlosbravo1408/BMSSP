@@ -6,7 +6,12 @@ from bmssp.graph_cache import GraphCache
 # Global cache instance
 _cache = GraphCache()
 
-def load_dimacs_graph(file_path: str, is_directed: bool = True, use_cache: bool = True) -> Graph:
+def load_dimacs_graph(
+        file_path: str,
+        is_directed: bool = True,
+        use_cache:bool = True,
+        verbose: bool = False
+) -> Graph:
     """
     Parses a graph file in the 9th DIMACS Implementation Challenge format with optimizations.
     This format is structured with problem lines ('p'), comment lines ('c'),
@@ -26,8 +31,8 @@ def load_dimacs_graph(file_path: str, is_directed: bool = True, use_cache: bool 
         cached_graph = _cache.load_cached_graph(file_path, is_directed=None)
         if cached_graph is not None:
             return cached_graph
-    
-    print(f"Parsing DIMACS file {file_path}...")
+    if verbose:
+        print(f"Parsing DIMACS file {file_path}...")
     
     # Read entire file at once for better I/O performance
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -73,7 +78,8 @@ def load_dimacs_graph(file_path: str, is_directed: bool = True, use_cache: bool 
     for u, v, weight in edges_data:
         graph.add_edge(u, v, weight)
     
-    print(f"Graph loaded: {graph.vertices} vertices, {len(edges_data)} edges")
+    if verbose:
+        print(f"Graph loaded: {graph.vertices} vertices, {len(edges_data)} edges")
     
     # Cache the loaded graph for future use
     if use_cache:
@@ -81,7 +87,12 @@ def load_dimacs_graph(file_path: str, is_directed: bool = True, use_cache: bool 
     
     return graph
 
-def load_snap_graph(file_path: str, is_directed: bool = True, use_cache: bool = True) -> Graph:
+def load_snap_graph(
+        file_path: str,
+        is_directed: bool = True,
+        use_cache: bool = True,
+        verbose: bool = False
+) -> Graph:
     """
     Parses a graph file from the Stanford Network Analysis Platform (SNAP) using pandas
     with vectorized operations for maximum performance on large files.
@@ -104,7 +115,8 @@ def load_snap_graph(file_path: str, is_directed: bool = True, use_cache: bool = 
         if cached_graph is not None:
             return cached_graph
     
-    print(f"Parsing SNAP file {file_path} ({'directed' if is_directed else 'undirected'})...")
+    if verbose:
+        print(f"Parsing SNAP file {file_path} ({'directed' if is_directed else 'undirected'})...")
     
     try:
         # Use pandas with optimized settings for large files
@@ -126,19 +138,22 @@ def load_snap_graph(file_path: str, is_directed: bool = True, use_cache: bool = 
     if df.empty:
         return Graph(0)
 
-    print(f"Read {len(df)} edges from file...")
+    if verbose:
+        print(f"Read {len(df)} edges from file...")
     
     # Vectorized operations for maximum performance
     max_node_id = int(max(df['u'].max(), df['v'].max()))
     num_vertices = max_node_id + 1
-    print(f"Creating graph with {num_vertices} vertices...")
+    if verbose:
+        print(f"Creating graph with {num_vertices} vertices...")
     graph = Graph(num_vertices)
     
     # Convert to numpy arrays for faster iteration
     u_array = df['u'].values
     v_array = df['v'].values
     
-    print(f"Adding edges to graph...")
+    if verbose:
+        print(f"Adding edges to graph...")
     # Vectorized edge addition - much faster than itertuples
     for i in range(len(u_array)):
         graph.add_edge(u_array[i], v_array[i], 1.0)
@@ -146,7 +161,8 @@ def load_snap_graph(file_path: str, is_directed: bool = True, use_cache: bool = 
         if not is_directed:
             graph.add_edge(v_array[i], u_array[i], 1.0)
     
-    print(f"Graph loaded: {num_vertices} vertices, {sum(len(adj) for adj in graph.adj)} edges")
+    if verbose:
+        print(f"Graph loaded: {num_vertices} vertices, {sum(len(adj) for adj in graph.adj)} edges")
     
     # Cache the loaded graph for future use
     if use_cache:
