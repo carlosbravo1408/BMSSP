@@ -5,7 +5,7 @@ import urllib.request
 import gzip
 import shutil
 
-from graph_loader import load_dimacs_graph, load_snap_graph, get_file_size_mb
+from bmssp.graph_loader import load_dimacs_graph, load_snap_graph, get_file_size_mb
 from bmssp.bmssp_solver import BmsspSolver
 from bmssp.comparison_solvers import dijkstra, bellman_ford
 

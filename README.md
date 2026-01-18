@@ -1,5 +1,7 @@
 # Breaking the Sorting Barrier: A Python Implementation of the BMSSP Algorithm
 
+_Forked from https://github.com/bzantium/bmssp-python_
+
 ## 🚀 Introduction
 
 Welcome to this educational repository for the **Bounded Multi-Source Shortest Path (BMSSP)** algorithm. This project provides a clear and commented Python implementation of the groundbreaking shortest path algorithm introduced in the paper "[Breaking the Sorting Barrier for Directed Single-Source Shortest Paths](https://arxiv.org/abs/2504.17033)".
@@ -66,18 +68,11 @@ By combining these techniques, BMSSP bypasses the need to strictly sort all fron
 
 This represents a significant theoretical improvement over Dijkstra's $O(m + n \\log n)$ complexity, especially on sparse graphs where $m = O(n)$.
 
-## 🐍 Implementation in this Repository
-
-This repository offers two distinct implementations to serve different needs:
-
-  * **`BmsspSolver` (Educational Version):** Designed for learning, this version features extensive comments and a clear structure that closely follows the formal algorithm described in the paper. It prioritizes readability to help users understand the core concepts.
-  * **`BmsspSolverV2` (Optimized Version):** Designed for performance, this version uses more advanced techniques like delta-stepping, efficient memory management, and faster heuristics. It demonstrates the practical potential of the BMSSP algorithm.
-
 ### 📁 Project Structure
 
-  * `src/bmssp_solver.py`: Contains the educational (`BmsspSolver`) and optimized (`BmsspSolverV2`) implementations.
-  * `src/comparison_solvers.py`: Reference implementations of Dijkstra's and Bellman-Ford's algorithms.
-  * `src/graph.py`, `graph_loader.py`: Utilities for graph representation and loading data.
+  * `bmddp/bmssp_solver.py`: Contains (`BmsspSolver`) implementation.
+  * `bmddp/comparison_solvers.py`: Reference implementations of Dijkstra's and Bellman-Ford's algorithms.
+  * `bmddp/graph.py`, `graph_loader.py`: Utilities for graph representation and loading data.
   * `main.py`: The main script to run benchmarks and compare the performance of the different solvers.
 
 ## 🚀 How to Run
@@ -99,9 +94,6 @@ This repository offers two distinct implementations to serve different needs:
 
     # Run on a larger dataset like Google's web graph
     python main.py --data google
-
-    # Run the educational solver (V1) for comparison
-    python main.py --data stanford --solver v1
     ```
 
     For significantly better performance, especially on large graphs, use **PyPy**:
@@ -112,9 +104,9 @@ This repository offers two distinct implementations to serve different needs:
 
 ## 📊 Performance Benchmarks
 
-The optimized `BmsspSolverV2` is not just a theoretical improvement but also a practical one, outperforming a standard Dijkstra implementation on several large-scale graphs.
+The optimized `BmsspSolver` is not just a theoretical improvement but also a practical one, outperforming a standard Dijkstra implementation on several large-scale graphs.
 
-| Dataset | Vertices | Edges | BMSSP-V2 (Optimized) | Dijkstra |
+| Dataset | Vertices | Edges | BMSSP (Optimized) | Dijkstra |
 |:---|---:|---:|---:|---:|
 | Stanford | 281K | 2.3M | **0.4584s** | 0.4515s |
 | Google | 916K | 5.1M | **1.2966s** | 1.7452s |
@@ -123,9 +115,9 @@ The optimized `BmsspSolverV2` is not just a theoretical improvement but also a p
 
 ### Key Observations:
 
-  * **Performance Breakthrough**: `BmsspSolverV2` successfully outperforms Dijkstra on several large-scale web and social network graphs.
-  * **Excellent Scaling**: The performance advantage of `BmsspSolverV2` becomes more pronounced as the size and density of the graphs increase, validating its superior theoretical complexity.
-  * **Educational vs. Optimized**: The educational `BmsspSolver` runs 2-4x slower than Dijkstra, demonstrating the trade-off between clarity and performance. In contrast, `BmsspSolverV2` shows that the algorithm's concepts can be translated into highly efficient code.
+  * **Performance Breakthrough**: `BmsspSolver` successfully outperforms Dijkstra on several large-scale web and social network graphs.
+  * **Excellent Scaling**: The performance advantage of `BmsspSolver` becomes more pronounced as the size and density of the graphs increase, validating its superior theoretical complexity.
+  * **Optimized**: `BmsspSolver` shows that the algorithm's concepts can be translated into highly efficient code.
 
 ## References
 
