@@ -4,12 +4,10 @@ import os
 import urllib.request
 import gzip
 import shutil
-import pandas as pd
 
-from src.graph import Graph
 from graph_loader import load_dimacs_graph, load_snap_graph, get_file_size_mb
-from src.bmssp_solver import BmsspSolver
-from src.comparison_solvers import dijkstra, bellman_ford
+from bmssp.bmssp_solver import BmsspSolver
+from bmssp.comparison_solvers import dijkstra, bellman_ford
 
 # A dictionary to manage the configurations for different datasets.
 # Each entry specifies how to load the data, its filename, properties,

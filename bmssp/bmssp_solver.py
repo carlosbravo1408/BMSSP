@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, List, Set
 
 from .graph import Graph
-from .data_structure import EfficientDataStructure, BucketQueue
+from .data_structure import BucketQueue
 from .comparison_solvers import dijkstra
 
 

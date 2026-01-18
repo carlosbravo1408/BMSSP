@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from src.graph import Graph
-from src.graph_cache import GraphCache
+from bmssp.graph import Graph
+from bmssp.graph_cache import GraphCache
 
 # Global cache instance
 _cache = GraphCache()
