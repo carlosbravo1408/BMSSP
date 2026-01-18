@@ -11,7 +11,7 @@ def load_dimacs_graph(
         is_directed: bool = True,
         use_cache:bool = True,
         verbose: bool = False
-) -> Graph:
+) -> Tuple[Graph, int, int]:
     """
     Parses a graph file in the 9th DIMACS Implementation Challenge format with optimizations.
     This format is structured with problem lines ('p'), comment lines ('c'),
@@ -85,14 +85,14 @@ def load_dimacs_graph(
     if use_cache:
         _cache.save_graph_to_cache(graph, file_path, is_directed=None)
     
-    return graph
+    return graph, graph.vertices, len(edges_data)
 
 def load_snap_graph(
         file_path: str,
         is_directed: bool = True,
         use_cache: bool = True,
         verbose: bool = False
-) -> Graph:
+) -> Tuple[Graph, int, int]:
     """
     Parses a graph file from the Stanford Network Analysis Platform (SNAP) using pandas
     with vectorized operations for maximum performance on large files.
@@ -168,7 +168,7 @@ def load_snap_graph(
     if use_cache:
         _cache.save_graph_to_cache(graph, file_path, is_directed=is_directed)
     
-    return graph
+    return graph, graph.vertices, len(edges_data)
 
 
 def get_file_size_mb(file_path: str) -> float:
