@@ -1,3 +1,4 @@
+import gc
 from typing import Tuple
 
 import pandas as pd
@@ -78,7 +79,8 @@ def load_dimacs_graph(
         raise ValueError("Invalid DIMACS file: No problem line found.")
     
     # Add all edges efficiently
-    print(f"Adding {len(edges_data)} edges to graph...")
+    if verbose:
+        print(f"Adding {len(edges_data)} edges to graph...")
     for u, v, weight in edges_data:
         graph.add_edge(u, v, weight)
     
@@ -91,6 +93,7 @@ def load_dimacs_graph(
     
     return graph, graph.vertices, len(edges_data)
 
+
 def load_snap_graph(
         file_path: str,
         is_directed: bool = True,
@@ -100,16 +103,16 @@ def load_snap_graph(
     """
     Parses a graph file from the Stanford Network Analysis Platform (SNAP) using pandas
     with vectorized operations for maximum performance on large files.
-    
+
     These files are typically simple edge lists where each line represents an edge.
     Comment lines start with '#'. Since these graphs are usually unweighted,
     a default edge weight of 1.0 is assigned.
-    
+
     Args:
         file_path: Path to the SNAP format file
         is_directed: Whether to treat the graph as directed (True) or undirected (False)
         use_cache: Whether to use caching for faster repeated loads
-    
+
     Returns:
         Graph object with edges loaded from the file
     """
@@ -118,7 +121,7 @@ def load_snap_graph(
         cached_graph = _cache.load_cached_graph(file_path, is_directed=is_directed)
         if cached_graph is not None:
             return cached_graph
-    
+
     if verbose:
         print(f"Parsing SNAP file {file_path} ({'directed' if is_directed else 'undirected'})...")
     
@@ -137,25 +140,25 @@ def load_snap_graph(
         )
     except (FileNotFoundError, pd.errors.EmptyDataError):
         # Return an empty graph if the file doesn't exist or is empty.
-        return Graph(0)
+        return Graph(0), 0, 0
 
     if df.empty:
-        return Graph(0)
+        return Graph(0), 0, 0
 
     if verbose:
         print(f"Read {len(df)} edges from file...")
-    
+
     # Vectorized operations for maximum performance
     max_node_id = int(max(df['u'].max(), df['v'].max()))
     num_vertices = max_node_id + 1
     if verbose:
         print(f"Creating graph with {num_vertices} vertices...")
     graph = Graph(num_vertices)
-    
+
     # Convert to numpy arrays for faster iteration
     u_array = df['u'].values
     v_array = df['v'].values
-    
+
     if verbose:
         print(f"Adding edges to graph...")
     # Vectorized edge addition - much faster than itertuples
@@ -164,15 +167,16 @@ def load_snap_graph(
         # For undirected graphs, add the reverse edge as well.
         if not is_directed:
             graph.add_edge(v_array[i], u_array[i], 1.0)
-    
+    edges = sum(len(adj) for adj in graph.adj)
     if verbose:
         print(f"Graph loaded: {num_vertices} vertices, {sum(len(adj) for adj in graph.adj)} edges")
     
     # Cache the loaded graph for future use
     if use_cache:
         _cache.save_graph_to_cache(graph, file_path, is_directed=is_directed)
-    
-    return graph, graph.vertices, len(u_array) * (1 if is_directed else 2)
+    del df
+    gc.collect()
+    return graph, graph.vertices, edges
 
 
 def get_file_size_mb(file_path: str) -> float:
